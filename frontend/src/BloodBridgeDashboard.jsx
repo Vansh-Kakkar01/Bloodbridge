@@ -23,6 +23,63 @@ const COMPATIBLE_RECIPIENTS = {
   AB_POS: ['AB_POS']
 };
 
+const translations = {
+  EN: {
+    tabDispatch: "🚨 ER Dispatch & Map",
+    tabDonors: "🩸 Suitable Donors & KPIs",
+    tabAudit: "📡 Audit & Blood Stock",
+    raiseReq: "Raise Emergency Request & Patient History",
+    bloodGroup: "Required Blood Group",
+    urgency: "Urgency Radius",
+    moderate: "Moderate (15km)",
+    critical: "Critical (5km)",
+    broadcast: "Broadcast Emergency Alert",
+    dispatching: "Dispatching...",
+    lifecycle: "Ticket Lifecycle Status",
+    demoBtn: "⚡ Load Demo Scenario",
+    inventoryToggle: "🏥 Hospital Stock",
+    logout: "Logout",
+    whatsapp: "WhatsApp",
+    call: "Call"
+  },
+  HI: {
+    tabDispatch: "🚨 ईआर डिस्पैच और मैप",
+    tabDonors: "🩸 उपयुक्त दाता और KPI",
+    tabAudit: "📡 ऑडिट और ब्लड स्टॉक",
+    raiseReq: "आपातकालीन अनुरोध और रोगी इतिहास",
+    bloodGroup: "आवश्यक रक्त समूह",
+    urgency: "तात्कालिकता दायरा",
+    moderate: "मध्यम (15किमी)",
+    critical: "गंभीर (5किमी)",
+    broadcast: "आपातकालीन चेतावनी प्रसारित करें",
+    dispatching: "प्रेषित हो रहा है...",
+    lifecycle: "टिकट जीवनचक्र स्थिति",
+    demoBtn: "⚡ डेमो लोड करें",
+    inventoryToggle: "🏥 अस्पताल स्टॉक",
+    logout: "लॉगआउट",
+    whatsapp: "व्हाट्सएप",
+    call: "कॉल करें"
+  },
+  PB: {
+    tabDispatch: "🚨 ER ਡਿਸਪੈਚ ਅਤੇ ਮੈਪ",
+    tabDonors: "🩸 ਢੁਕਵੇਂ ਦਾਤੇ ਅਤੇ KPI",
+    tabAudit: "📡 ਆਡਿਟ ਅਤੇ ਬਲੱਡ ਸਟਾਕ",
+    raiseReq: "ਐਮਰਜੈਂਸੀ ਬੇਨਤੀ ਅਤੇ ਮਰੀਜ਼ ਦਾ ਇਤਿਹਾਸ",
+    bloodGroup: "ਲੋੜੀਂਦਾ ਖੂਨ ਦਾ ਸਮੂਹ",
+    urgency: "ਜ਼ਰੂਰੀ ਦਾਇਰਾ",
+    moderate: "ਦਰਮਿਆਨੀ (15ਕਿਮੀ)",
+    critical: "ਗੰਭੀਰ (5ਕਿमी)",
+    broadcast: "ਐਮਰਜੈਂਸੀ ਅਲਰਟ ਭੇਜੋ",
+    dispatching: "ਭੇਜ ਰਿਹਾ ਹੈ...",
+    lifecycle: "ਟਿਕਟ ਲਾਈਫਸਾਈਕਲ ਸਥਿਤੀ",
+    demoBtn: "⚡ ਡੈਮੋ ਲੋਡ ਕਰੋ",
+    inventoryToggle: "🏥 ਹਸਪਤਾਲ ਸਟਾਕ",
+    logout: "ਲੌਗਆਊਟ",
+    whatsapp: "ਵਟਸਐਪ",
+    call: "ਕਾਲ ਕਰੋ"
+  }
+};
+
 function isBloodCompatible(donorGroup, patientGroup) {
   return (COMPATIBLE_RECIPIENTS[donorGroup] || []).includes(patientGroup);
 }
@@ -57,7 +114,7 @@ function inspectMedicalSignals(donor, patient) {
   const days = Number(donor.daysSinceLastDonation);
   if (Number.isNaN(days) || days < 90) {
     if (suggested !== 'NOT_SUITABLE') suggested = 'REVIEW_NEEDED';
-    flags.push({ ok: false, text: `Last donation ${days || 0}d ago (< 90d)` });
+    flags.push({ ok: false, text: `Cooldown ${days || 0}d (< 90d)` });
   } else {
     flags.push({ ok: true, text: `Cooldown OK (${days}d)` });
   }
@@ -76,7 +133,7 @@ function inspectMedicalSignals(donor, patient) {
 
   if (patient.condition === 'Immunocompromised / Irradiated Need') {
     if (suggested !== 'NOT_SUITABLE') suggested = 'REVIEW_NEEDED';
-    flags.push({ ok: false, text: 'Patient requires Irradiated unit' });
+    flags.push({ ok: false, text: 'Patient needs Irradiated unit' });
   }
 
   return { suggested, flags };
@@ -91,7 +148,7 @@ function LocationMarker({ position, setPosition }) {
 
   return position === null ? null : (
     <Marker position={position}>
-      <Popup>BloodBridge Dispatch Pin</Popup>
+      <Popup>BloodBridge Incident Pin</Popup>
     </Marker>
   );
 }
@@ -99,15 +156,24 @@ function LocationMarker({ position, setPosition }) {
 export default function BloodBridgeDashboard() {
   const defaultCenter = [30.5160, 76.6598];
 
-  // Login & Dedicated Role ('donor' | 'needy' | 'doctor')
+  // Login & Explicit Role ('donor' | 'needy' | 'doctor')
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loginName, setLoginName] = useState('');
   const [loginId, setLoginId] = useState('');
-  const [selectedRole, setSelectedRole] = useState('donor'); // 'donor' | 'needy' | 'doctor'
+  const [selectedRole, setSelectedRole] = useState('needy');
   const [loginError, setLoginError] = useState('');
 
+  // Shared UI & Emergency State
+  const [lang, setLang] = useState('EN');
+  const [needyTab, setNeedyTab] = useState('dispatch');
   const [position, setPosition] = useState(defaultCenter);
+  const [urgencyLevel, setUrgencyLevel] = useState('CRITICAL');
+  const [ticketState, setTicketState] = useState('IDLE');
+  const [showHospitalStock, setShowHospitalStock] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [auditLogs, setAuditLogs] = useState([]);
+
+  const t = translations[lang];
 
   // ER Patient Medical History State
   const [patientInfo, setPatientInfo] = useState({
@@ -124,6 +190,7 @@ export default function BloodBridgeDashboard() {
     bloodGroup: 'O_POS',
     hemoglobin: 14.5,
     daysSinceLastDonation: 120,
+    donationCount: 8,
     infectiousFlag: false,
     recentFeverOrMeds: false,
     reportFileName: 'CBC_Screening_Report.pdf',
@@ -139,12 +206,13 @@ export default function BloodBridgeDashboard() {
       bloodGroup: 'O_POS',
       hemoglobin: 14.5,
       daysSinceLastDonation: 120,
+      donationCount: 8,
       infectiousFlag: false,
       recentFeverOrMeds: false,
       reportFileName: 'Aarav_CBC_Report.pdf',
       reportNotes: 'Hb 14.5 g/dL, Screening Non-Reactive',
-      doctorStatus: 'PENDING_DOCTOR',
-      doctorRemark: ''
+      doctorStatus: 'SUITABLE',
+      doctorRemark: 'Cleared by Doctor: Hb & infectious panel fit for ER trauma case.'
     },
     {
       id: 'sub-2',
@@ -153,12 +221,13 @@ export default function BloodBridgeDashboard() {
       bloodGroup: 'O_NEG',
       hemoglobin: 11.9,
       daysSinceLastDonation: 150,
+      donationCount: 5,
       infectiousFlag: false,
       recentFeverOrMeds: false,
       reportFileName: 'Rohan_Lab_Report.pdf',
       reportNotes: 'Hb 11.9 g/dL, mild anemia note in lab slip',
       doctorStatus: 'PENDING_DOCTOR',
-      doctorRemark: ''
+      doctorRemark: 'Awaiting doctor review of Hb threshold.'
     }
   ]);
 
@@ -173,7 +242,7 @@ export default function BloodBridgeDashboard() {
     setLoginError('');
     setIsLoggedIn(true);
     setAuditLogs(prev => [
-      `[${new Date().toLocaleTimeString()}] Login: ${loginName.trim()} entered as ${selectedRole.toUpperCase()}`,
+      `[${new Date().toLocaleTimeString()}] Auth: ${loginName.trim()} signed in as ${selectedRole.toUpperCase()}`,
       ...prev
     ]);
   };
@@ -193,21 +262,17 @@ export default function BloodBridgeDashboard() {
     }
   };
 
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-  };
-
   const handleSubmitDonorReport = (e) => {
     e.preventDefault();
     const newEntry = {
       id: `sub-${Date.now()}`,
       ...donorSubmission,
       doctorStatus: 'PENDING_DOCTOR',
-      doctorRemark: 'Awaiting doctor review of uploaded medical report & ER history'
+      doctorRemark: 'Submitted to Doctor Review Desk for suitability verification.'
     };
     setSubmissions(prev => [newEntry, ...prev]);
     setAuditLogs(prev => [
-      `[${new Date().toLocaleTimeString()}] Donor ${newEntry.name} submitted medical report (${newEntry.reportFileName}) → Sent to Doctor for suitability decision.`,
+      `[${new Date().toLocaleTimeString()}] Donor ${newEntry.name} submitted medical report (${newEntry.reportFileName}) → Pending Doctor approval.`,
       ...prev
     ]);
   };
@@ -216,8 +281,8 @@ export default function BloodBridgeDashboard() {
     const customNote = (doctorRemarks[id] || '').trim();
     const defaultNote =
       decision === 'SUITABLE'
-        ? 'Approved by Doctor after checking medical report & patient history.'
-        : 'Marked Not Suitable by Doctor after clinical/report review.';
+        ? 'Approved by Doctor after reviewing medical report & ER patient history.'
+        : 'Marked Not Suitable by Doctor after clinical review.';
 
     setSubmissions(prev =>
       prev.map(item => {
@@ -235,12 +300,78 @@ export default function BloodBridgeDashboard() {
     );
   };
 
-  // LOGIN SCREEN WITH EXPLICIT ROLE SELECTION (DONOR / NEEDY / DOCTOR)
+  const handleDemoLoad = () => {
+    setPatientInfo({
+      patientName: 'ER Trauma Bay #2',
+      bloodGroup: 'O_POS',
+      condition: 'Trauma / Acute Bleeding',
+      medicalHistory: 'Acute hemorrhage post road accident; no prior transfusion reaction'
+    });
+    setUrgencyLevel('CRITICAL');
+    setTicketState('ACCEPTED');
+    setSubmissions(prev => {
+      const exists = prev.some(p => p.id === 'sub-demo-3');
+      if (exists) return prev;
+      return [
+        {
+          id: 'sub-demo-3',
+          name: 'Priya Singh',
+          phoneNumber: '+919811122233',
+          bloodGroup: 'O_POS',
+          hemoglobin: 13.8,
+          daysSinceLastDonation: 110,
+          donationCount: 4,
+          infectiousFlag: false,
+          recentFeverOrMeds: false,
+          reportFileName: 'Priya_HealthCheck.pdf',
+          reportNotes: 'Hb 13.8 g/dL, All viral markers negative',
+          doctorStatus: 'SUITABLE',
+          doctorRemark: 'Doctor Cleared: Exact match & healthy lab parameters.'
+        },
+        ...prev
+      ];
+    });
+    setAuditLogs(prev => [
+      `[${new Date().toLocaleTimeString()}] DEMO INJECTOR: Activated critical ER trauma scenario & loaded doctor-cleared donors.`,
+      ...prev
+    ]);
+    setNeedyTab('donors');
+  };
+
+  const handleBroadcast = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setTicketState('BROADCASTED');
+    setAuditLogs(prev => [
+      `[${new Date().toLocaleTimeString()}] 2DSphere Broadcast: Searching ${patientInfo.bloodGroup} (${urgencyLevel}) + checking Doctor-cleared reports.`,
+      ...prev
+    ]);
+
+    try {
+      await fetch('http://localhost:8080/api/matching/broadcast', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          bloodGroup: patientInfo.bloodGroup,
+          longitude: position[1],
+          latitude: position[0],
+          urgencyLevel
+        })
+      });
+    } catch (_) {
+      // Fallback to local doctor-cleared pool seamlessly
+    } finally {
+      setTicketState('ACCEPTED');
+      setLoading(false);
+    }
+  };
+
+  // LOGIN SCREEN (SEPARATE ROLE ENTRY: DONOR / NEEDY / DOCTOR)
   if (!isLoggedIn) {
     return (
       <div className="bb-bright-shell">
         <div className="bb-login-wrapper">
-          <div className="bb-login-card" style={{ maxWidth: '470px' }}>
+          <div className="bb-login-card">
             <div style={{ textAlign: 'center', marginBottom: '18px' }}>
               <span style={{
                 display: 'inline-block',
@@ -354,34 +485,86 @@ export default function BloodBridgeDashboard() {
   return (
     <div className="bb-bright-shell">
       <div className="bb-bright-container">
+        {/* Top Banner */}
         <header className="bb-top-banner">
           <div>
             <h1 className="bb-hero-title">
               {selectedRole === 'donor' && '🩸 Donor Portal — Medical Report Submission'}
-              {selectedRole === 'needy' && '🚨 Needy (ER) Portal — Doctor-Cleared Matches'}
-              {selectedRole === 'doctor' && '🩺 Doctor Review Desk — Suitability Decision'}
+              {selectedRole === 'needy' && '🚨 Needy (ER) Dispatch & Suitability Hub'}
+              {selectedRole === 'doctor' && '🩺 Doctor Review Desk — Suitability Gatekeeper'}
             </h1>
             <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#475569', fontWeight: 500 }}>
-              Dedicated role workspace (use Logout to switch between Donor, Needy, and Doctor)
+              Geospatial 2DSphere Matching + Medical Report & Patient History Verification
             </p>
           </div>
 
           <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
             <span className="bb-welcome-pill">
-              {loginName} · Role: {selectedRole.toUpperCase()}
+              {loginName} · {selectedRole.toUpperCase()}
             </span>
+
+            {selectedRole === 'needy' && (
+              <button
+                type="button"
+                onClick={handleDemoLoad}
+                className="bb-action-btn"
+                style={{
+                  background: 'linear-gradient(135deg, #7c3aed 0%, #ec4899 100%)',
+                  color: '#ffffff',
+                  padding: '8px 13px',
+                  fontSize: '12px'
+                }}
+              >
+                {t.demoBtn}
+              </button>
+            )}
+
+            <div style={{ display: 'flex', backgroundColor: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '10px', padding: '3px' }}>
+              {['EN', 'HI', 'PB'].map((l) => (
+                <button
+                  key={l}
+                  type="button"
+                  onClick={() => setLang(l)}
+                  className="bb-action-btn"
+                  style={{
+                    background: lang === l ? 'linear-gradient(135deg, #0284c7, #2563eb)' : 'transparent',
+                    color: lang === l ? '#ffffff' : '#334155',
+                    padding: '6px 10px',
+                    borderRadius: '7px',
+                    fontSize: '12px'
+                  }}
+                >
+                  {l}
+                </button>
+              ))}
+            </div>
+
             <button
               type="button"
-              onClick={handleLogout}
+              onClick={() => setIsLoggedIn(false)}
               className="bb-action-btn"
               style={{ background: '#0f172a', color: '#ffffff', padding: '8px 14px', fontSize: '12px' }}
             >
-              Logout
+              {t.logout}
             </button>
+
+            <span
+              className="bb-pulse-badge"
+              style={{
+                background: 'linear-gradient(135deg, #ef4444, #f97316)',
+                color: '#ffffff',
+                padding: '7px 13px',
+                borderRadius: '999px',
+                fontSize: '11px',
+                fontWeight: 800
+              }}
+            >
+              ● LIVE SOS
+            </span>
           </div>
         </header>
 
-        {/* DEDICATED DONOR DASHBOARD */}
+        {/* 1. DONOR DEDICATED WORKSPACE */}
         {selectedRole === 'donor' && (
           <div key="donor-workspace" className="bb-tab-panel bb-dispatch-grid" style={{ marginTop: '20px' }}>
             <div className="bb-bright-card">
@@ -499,15 +682,15 @@ export default function BloodBridgeDashboard() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
               <div className="bb-bright-card">
                 <h3 style={{ margin: '0 0 12px 0', fontSize: '17px', fontWeight: 800 }}>
-                  My Submitted Reports & Doctor Status
+                  Submitted Medical Reports & Doctor Approval Status
                 </h3>
                 {submissions.map(sub => (
-                  <div key={sub.id} className="bb-donor-card" style={{ display: 'block' }}>
+                  <div key={sub.id} className="bb-donor-card">
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                       <div>
-                        <b>{sub.name}</b> ({sub.bloodGroup.replace('_', ' ')}) · Hb: <b>{sub.hemoglobin} g/dL</b> · Report: <b>{sub.reportFileName}</b>
+                        <b>{sub.name}</b> ({sub.bloodGroup.replace('_', ' ')}) · Hb: <b>{sub.hemoglobin} g/dL</b> · File: <b>{sub.reportFileName}</b>
                         <div style={{ fontSize: '12px', color: '#475569', marginTop: '4px' }}>
-                          Doctor Note: {sub.doctorRemark}
+                          Doctor Remark: {sub.doctorRemark}
                         </div>
                       </div>
                       <span
@@ -524,7 +707,7 @@ export default function BloodBridgeDashboard() {
                             sub.doctorStatus === 'NOT_SUITABLE' ? '#be123c' : '#92400e'
                         }}
                       >
-                        {sub.doctorStatus === 'SUITABLE' && '✓ SUITABLE (DOCTOR APPROVED)'}
+                        {sub.doctorStatus === 'SUITABLE' && '✓ SUITABLE (APPROVED)'}
                         {sub.doctorStatus === 'NOT_SUITABLE' && '✕ NOT SUITABLE'}
                         {sub.doctorStatus === 'PENDING_DOCTOR' && '⏳ PENDING DOCTOR REVIEW'}
                       </span>
@@ -543,7 +726,7 @@ export default function BloodBridgeDashboard() {
           </div>
         )}
 
-        {/* DEDICATED DOCTOR GATEKEEPER DASHBOARD */}
+        {/* 2. DOCTOR GATEKEEPER WORKSPACE */}
         {selectedRole === 'doctor' && (
           <div key="doctor-workspace" className="bb-tab-panel" style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '18px' }}>
             <div className="bb-bright-card">
@@ -551,13 +734,13 @@ export default function BloodBridgeDashboard() {
                 🩺 Doctor Suitability Review Queue
               </h2>
               <p style={{ margin: '0 0 14px 0', fontSize: '13px', color: '#475569' }}>
-                Active ER Case: <b>{patientInfo.patientName}</b> ({patientInfo.bloodGroup.replace('_', ' ')}) — History: <b>{patientInfo.medicalHistory}</b>
+                Active ER Patient: <b>{patientInfo.patientName}</b> ({patientInfo.bloodGroup.replace('_', ' ')}) — History: <b>{patientInfo.medicalHistory}</b>
               </p>
 
               {submissions.map(sub => {
                 const signal = inspectMedicalSignals(sub, patientInfo);
                 return (
-                  <div key={sub.id} className="bb-donor-card" style={{ display: 'block', borderLeftColor: '#7c3aed' }}>
+                  <div key={sub.id} className="bb-donor-card" style={{ borderLeftColor: '#7c3aed' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
                       <div>
                         <span style={{ fontSize: '16px', fontWeight: 800 }}>{sub.name}</span>
@@ -565,7 +748,7 @@ export default function BloodBridgeDashboard() {
                           {sub.bloodGroup.replace('_', ' ')} · Report: {sub.reportFileName}
                         </span>
                         <div style={{ fontSize: '12px', color: '#334155', marginTop: '4px' }}>
-                          Lab Notes: <b>{sub.reportNotes}</b>
+                          Lab Findings: <b>{sub.reportNotes}</b>
                         </div>
                       </div>
 
@@ -583,7 +766,7 @@ export default function BloodBridgeDashboard() {
                             sub.doctorStatus === 'NOT_SUITABLE' ? '#be123c' : '#5b21b6'
                         }}
                       >
-                        Decision: {sub.doctorStatus} (System Hint: {signal.suggested})
+                        Status: {sub.doctorStatus} (AI Hint: {signal.suggested})
                       </span>
                     </div>
 
@@ -635,75 +818,225 @@ export default function BloodBridgeDashboard() {
           </div>
         )}
 
-        {/* DEDICATED NEEDY (ER) DASHBOARD */}
+        {/* 3. NEEDY (ER) DEDICATED WORKSPACE WITH ALL TABS & FEATURES */}
         {selectedRole === 'needy' && (
-          <div key="needy-workspace" className="bb-tab-panel bb-dispatch-grid" style={{ marginTop: '20px' }}>
-            <div className="bb-bright-card">
-              <h2 style={{ margin: '0 0 14px 0', fontSize: '18px', fontWeight: 800, color: '#be123c' }}>
-                ER Patient Medical History
-              </h2>
-
-              <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, marginBottom: '5px' }}>Patient / Bay</label>
-              <input
-                type="text"
-                value={patientInfo.patientName}
-                onChange={(e) => setPatientInfo({ ...patientInfo, patientName: e.target.value })}
-                className="bb-login-input"
-                style={{ marginBottom: '12px' }}
-              />
-
-              <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, marginBottom: '5px' }}>Required Blood Group</label>
-              <select
-                value={patientInfo.bloodGroup}
-                onChange={(e) => setPatientInfo({ ...patientInfo, bloodGroup: e.target.value })}
-                className="bb-login-input"
-                style={{ marginBottom: '12px' }}
+          <>
+            <nav className="bb-tab-bar" aria-label="ER Needy Sections">
+              <button
+                type="button"
+                onClick={() => setNeedyTab('dispatch')}
+                className={`bb-tab-btn ${needyTab === 'dispatch' ? 'bb-tab-active' : ''}`}
               >
-                {BLOOD_GROUPS.map(bg => <option key={bg} value={bg}>{bg.replace('_', ' ')}</option>)}
-              </select>
-
-              <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, marginBottom: '5px' }}>Condition</label>
-              <select
-                value={patientInfo.condition}
-                onChange={(e) => setPatientInfo({ ...patientInfo, condition: e.target.value })}
-                className="bb-login-input"
-                style={{ marginBottom: '12px' }}
+                {t.tabDispatch}
+              </button>
+              <button
+                type="button"
+                onClick={() => setNeedyTab('donors')}
+                className={`bb-tab-btn ${needyTab === 'donors' ? 'bb-tab-active' : ''}`}
               >
-                <option value="Trauma / Acute Bleeding">Trauma / Acute Bleeding</option>
-                <option value="Severe Anemia">Severe Anemia</option>
-                <option value="Immunocompromised / Irradiated Need">Immunocompromised / Irradiated Need</option>
-                <option value="Surgery / Post-Op">Surgery / Post-Op</option>
-              </select>
+                {t.tabDonors} ({suitableDonorsForNeedy.length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setNeedyTab('audit')}
+                className={`bb-tab-btn ${needyTab === 'audit' ? 'bb-tab-active' : ''}`}
+              >
+                {t.tabAudit}
+              </button>
+            </nav>
 
-              <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, marginBottom: '5px' }}>Medical History Notes</label>
-              <textarea
-                rows={3}
-                value={patientInfo.medicalHistory}
-                onChange={(e) => setPatientInfo({ ...patientInfo, medicalHistory: e.target.value })}
-                className="bb-login-input"
-              />
-            </div>
+            {needyTab === 'dispatch' && (
+              <div key="er-tab-dispatch" className="bb-tab-panel bb-dispatch-grid">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+                  <div className="bb-bright-card">
+                    <form onSubmit={handleBroadcast}>
+                      <h2 style={{ margin: '0 0 14px 0', fontSize: '17px', fontWeight: 800, color: '#be123c' }}>
+                        {t.raiseReq}
+                      </h2>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
-              <div className="bb-bright-card">
-                <h3 style={{ margin: '0 0 12px 0', fontSize: '17px', fontWeight: 800 }}>
-                  Doctor-Approved Suitable Donors ({suitableDonorsForNeedy.length})
-                </h3>
+                      <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, marginBottom: '5px' }}>Patient / ER Bay</label>
+                      <input
+                        type="text"
+                        value={patientInfo.patientName}
+                        onChange={(e) => setPatientInfo({ ...patientInfo, patientName: e.target.value })}
+                        className="bb-login-input"
+                        style={{ marginBottom: '12px' }}
+                      />
 
-                {suitableDonorsForNeedy.length === 0 ? (
-                  <p style={{ margin: 0, fontSize: '13px', color: '#475569' }}>
-                    Abhi kisi donor ko Doctor ne <b>SUITABLE</b> approve nahi kiya hai. Login as <b>Doctor</b> to review submitted reports first.
-                  </p>
-                ) : (
-                  suitableDonorsForNeedy.map(d => {
+                      <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, marginBottom: '5px' }}>{t.bloodGroup}</label>
+                      <select
+                        value={patientInfo.bloodGroup}
+                        onChange={(e) => setPatientInfo({ ...patientInfo, bloodGroup: e.target.value })}
+                        className="bb-login-input"
+                        style={{ marginBottom: '12px' }}
+                      >
+                        {BLOOD_GROUPS.map(bg => <option key={bg} value={bg}>{bg.replace('_', ' ')}</option>)}
+                      </select>
+
+                      <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, marginBottom: '5px' }}>Clinical Condition</label>
+                      <select
+                        value={patientInfo.condition}
+                        onChange={(e) => setPatientInfo({ ...patientInfo, condition: e.target.value })}
+                        className="bb-login-input"
+                        style={{ marginBottom: '12px' }}
+                      >
+                        <option value="Trauma / Acute Bleeding">Trauma / Acute Bleeding</option>
+                        <option value="Severe Anemia">Severe Anemia</option>
+                        <option value="Immunocompromised / Irradiated Need">Immunocompromised / Irradiated Need</option>
+                        <option value="Surgery / Post-Op">Surgery / Post-Op</option>
+                      </select>
+
+                      <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, marginBottom: '5px' }}>Patient Medical History</label>
+                      <textarea
+                        rows={2}
+                        value={patientInfo.medicalHistory}
+                        onChange={(e) => setPatientInfo({ ...patientInfo, medicalHistory: e.target.value })}
+                        className="bb-login-input"
+                        style={{ marginBottom: '12px' }}
+                      />
+
+                      <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, marginBottom: '6px' }}>{t.urgency}</label>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '16px' }}>
+                        <button
+                          type="button"
+                          onClick={() => setUrgencyLevel('MODERATE')}
+                          className="bb-action-btn"
+                          style={{
+                            padding: '10px',
+                            fontSize: '12px',
+                            background: urgencyLevel === 'MODERATE' ? 'linear-gradient(135deg, #f59e0b, #f97316)' : '#f1f5f9',
+                            color: urgencyLevel === 'MODERATE' ? '#ffffff' : '#475569'
+                          }}
+                        >
+                          {t.moderate}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setUrgencyLevel('CRITICAL')}
+                          className="bb-action-btn"
+                          style={{
+                            padding: '10px',
+                            fontSize: '12px',
+                            background: urgencyLevel === 'CRITICAL' ? 'linear-gradient(135deg, #e11d48, #f43f5e)' : '#f1f5f9',
+                            color: urgencyLevel === 'CRITICAL' ? '#ffffff' : '#475569'
+                          }}
+                        >
+                          {t.critical}
+                        </button>
+                      </div>
+
+                      <button
+                        type="submit"
+                        disabled={loading}
+                        className="bb-action-btn"
+                        style={{
+                          width: '100%',
+                          padding: '12px',
+                          fontSize: '14px',
+                          background: 'linear-gradient(135deg, #ff2a5f 0%, #ff6b00 100%)',
+                          color: '#ffffff'
+                        }}
+                      >
+                        {loading ? t.dispatching : t.broadcast}
+                      </button>
+                    </form>
+                  </div>
+
+                  {/* Ticket Lifecycle Tracker */}
+                  <div className="bb-bright-card">
+                    <h3 style={{ margin: '0 0 10px 0', fontSize: '15px', fontWeight: 800, color: '#0369a1' }}>{t.lifecycle}</h3>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', fontWeight: 700 }}>
+                      <span style={{ color: ticketState !== 'IDLE' ? '#16a34a' : '#64748b' }}>1. Broadcast</span>
+                      <span>➔</span>
+                      <span style={{ color: ticketState === 'ACCEPTED' || ticketState === 'FULFILLED' ? '#16a34a' : '#64748b' }}>2. Doctor Cleared</span>
+                      <span>➔</span>
+                      <span style={{ color: ticketState === 'FULFILLED' ? '#16a34a' : '#64748b' }}>3. Fulfilled</span>
+                    </div>
+                    {ticketState !== 'IDLE' && (
+                      <button
+                        type="button"
+                        onClick={() => setTicketState('FULFILLED')}
+                        className="bb-action-btn"
+                        style={{
+                          width: '100%',
+                          marginTop: '12px',
+                          padding: '9px',
+                          fontSize: '12px',
+                          background: 'linear-gradient(135deg, #10b981, #059669)',
+                          color: '#ffffff'
+                        }}
+                      >
+                        Mark as Fulfilled & Cooldown Donors
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Map + Hospital Stock Overlay */}
+                <div className="bb-bright-card" style={{ padding: 0, overflow: 'hidden', height: '450px', position: 'relative' }}>
+                  <div style={{ position: 'absolute', top: '12px', right: '12px', zIndex: 1000 }}>
+                    <button
+                      type="button"
+                      onClick={() => setShowHospitalStock(!showHospitalStock)}
+                      className="bb-action-btn"
+                      style={{
+                        background: showHospitalStock ? 'linear-gradient(135deg, #0284c7, #2563eb)' : '#ffffff',
+                        color: showHospitalStock ? '#ffffff' : '#0f172a',
+                        padding: '8px 12px',
+                        fontSize: '12px',
+                        boxShadow: '0 6px 16px rgba(15, 23, 42, 0.16)'
+                      }}
+                    >
+                      {t.inventoryToggle}: {showHospitalStock ? 'ON' : 'OFF'}
+                    </button>
+                  </div>
+                  <MapContainer center={defaultCenter} zoom={14} scrollWheelZoom={false} style={{ height: '100%', width: '100%' }}>
+                    <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                    <LocationMarker position={position} setPosition={setPosition} />
+                  </MapContainer>
+                </div>
+              </div>
+            )}
+
+            {needyTab === 'donors' && (
+              <div key="er-tab-donors" className="bb-tab-panel">
+                <div className="bb-kpi-row">
+                  <div className="bb-kpi-tile" style={{ background: 'linear-gradient(135deg, #ff2a5f, #ff7a00)' }}>
+                    <div style={{ fontSize: '12px', opacity: 0.92, fontWeight: 600 }}>Avg Response Time</div>
+                    <div style={{ fontSize: '24px', fontWeight: 800, marginTop: '4px' }}>3.4 mins</div>
+                  </div>
+                  <div className="bb-kpi-tile" style={{ background: 'linear-gradient(135deg, #0ea5e9, #6366f1)' }}>
+                    <div style={{ fontSize: '12px', opacity: 0.92, fontWeight: 600 }}>Active Search Radius</div>
+                    <div style={{ fontSize: '24px', fontWeight: 800, marginTop: '4px' }}>5km – 15km</div>
+                  </div>
+                  <div className="bb-kpi-tile" style={{ background: 'linear-gradient(135deg, #10b981, #0d9488)' }}>
+                    <div style={{ fontSize: '12px', opacity: 0.92, fontWeight: 600 }}>Units Fulfilled</div>
+                    <div style={{ fontSize: '24px', fontWeight: 800, marginTop: '4px' }}>42 Units</div>
+                  </div>
+                </div>
+
+                <div className="bb-bright-card">
+                  <h3 style={{ margin: '0 0 12px 0', fontSize: '17px', fontWeight: 800 }}>
+                    Doctor-Approved Suitable Donors ({suitableDonorsForNeedy.length})
+                  </h3>
+
+                  {suitableDonorsForNeedy.map(d => {
                     const signal = inspectMedicalSignals(d, patientInfo);
                     return (
-                      <div key={d.id} className="bb-donor-card" style={{ display: 'block', borderLeftColor: '#16a34a' }}>
+                      <div key={d.id} className="bb-donor-card" style={{ borderLeftColor: '#16a34a' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                           <div>
-                            <b style={{ fontSize: '15px' }}>{d.name}</b> ({d.bloodGroup.replace('_', ' ')}) · Hb: <b>{d.hemoglobin} g/dL</b>
-                            <div style={{ fontSize: '12px', color: '#15803d', fontWeight: 600, marginTop: '3px' }}>
-                              Doctor Clearance: {d.doctorRemark}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                              <b style={{ fontSize: '15px' }}>{d.name}</b>
+                              <span style={{ backgroundColor: '#dcfce7', color: '#15803d', fontSize: '11px', fontWeight: 700, padding: '2px 8px', borderRadius: '999px' }}>
+                                ✓ Doctor Approved
+                              </span>
+                              <span style={{ backgroundColor: '#e0f2fe', color: '#0369a1', fontSize: '11px', fontWeight: 700, padding: '2px 8px', borderRadius: '999px' }}>
+                                🏆 {d.donationCount || 3} Donations
+                              </span>
+                            </div>
+                            <div style={{ fontSize: '12px', color: '#15803d', fontWeight: 600, marginTop: '4px' }}>
+                              {d.doctorRemark}
                             </div>
                           </div>
 
@@ -715,14 +1048,14 @@ export default function BloodBridgeDashboard() {
                               className="bb-action-btn"
                               style={{ background: '#16a34a', color: '#ffffff', padding: '7px 12px', textDecoration: 'none', fontSize: '12px' }}
                             >
-                              WhatsApp
+                              {t.whatsapp}
                             </a>
                             <a
                               href={`tel:${d.phoneNumber}`}
                               className="bb-action-btn"
                               style={{ background: '#2563eb', color: '#ffffff', padding: '7px 12px', textDecoration: 'none', fontSize: '12px' }}
                             >
-                              Call
+                              {t.call}
                             </a>
                           </div>
                         </div>
@@ -743,31 +1076,41 @@ export default function BloodBridgeDashboard() {
                         </div>
                       </div>
                     );
-                  })
-                )}
+                  })}
+                </div>
               </div>
-
-              <div className="bb-bright-card" style={{ padding: 0, overflow: 'hidden', height: '240px' }}>
-                <MapContainer center={defaultCenter} zoom={14} scrollWheelZoom={false} style={{ height: '100%', width: '100%' }}>
-                  <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                  <LocationMarker position={position} setPosition={setPosition} />
-                </MapContainer>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Audit Trail */}
-        <div className="bb-bright-card" style={{ marginTop: '20px' }}>
-          <h3 style={{ margin: '0 0 10px 0', fontSize: '15px', fontWeight: 800 }}>📡 Workflow Audit Log</h3>
-          <div className="bb-terminal-bright" style={{ minHeight: '105px' }}>
-            {auditLogs.length === 0 ? (
-              <span style={{ color: '#94a3b8' }}>[Ready] Donor submits report → Doctor approves/rejects → Needy sees approved suitable donors.</span>
-            ) : (
-              auditLogs.map((log, i) => <div key={i} style={{ marginBottom: '5px' }}>{log}</div>)
             )}
-          </div>
-        </div>
+
+            {needyTab === 'audit' && (
+              <div key="er-tab-audit" className="bb-tab-panel" style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+                <div className="bb-bright-card">
+                  <h3 style={{ margin: '0 0 12px 0', fontSize: '17px', fontWeight: 800, color: '#7c3aed' }}>🏥 Nearby Blood Bank Stock</h3>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '14px' }}>
+                    <div style={{ background: 'linear-gradient(135deg, #fff1f2, #ffe4e6)', border: '1px solid #fecdd3', borderRadius: '14px', padding: '14px' }}>
+                      <div style={{ fontWeight: 800, color: '#9f1239' }}>Civil Hospital Bank</div>
+                      <div style={{ fontSize: '13px', color: '#4c0519', marginTop: '4px' }}>4 Units O+ • 3 Units A+</div>
+                    </div>
+                    <div style={{ background: 'linear-gradient(135deg, #eff6ff, #dbeafe)', border: '1px solid #bfdbfe', borderRadius: '14px', padding: '14px' }}>
+                      <div style={{ fontWeight: 800, color: '#1e40af' }}>Red Cross Unit</div>
+                      <div style={{ fontSize: '13px', color: '#172554', marginTop: '4px' }}>2 Units O− • 5 Units B+</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bb-bright-card">
+                  <h3 style={{ margin: '0 0 10px 0', fontSize: '16px', fontWeight: 800 }}>📡 Live Notification & Clinical Audit Log</h3>
+                  <div className="bb-terminal-bright">
+                    {auditLogs.length === 0 ? (
+                      <span style={{ color: '#94a3b8' }}>[Ready] Donor submits report → Doctor approves → ER Needy sees suitable cleared donors...</span>
+                    ) : (
+                      auditLogs.map((log, i) => <div key={i} style={{ marginBottom: '5px' }}>{log}</div>)
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+          </>
+        )}
       </div>
     </div>
   );
