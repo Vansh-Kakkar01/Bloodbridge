@@ -1,0 +1,5 @@
+spring.application.name=bloodbridge
+server.port=8080
+
+# Connects to your local MongoDB instance
+spring.data.mongodb.uri=mongodb://localhost:27017/bloodbridge_db
