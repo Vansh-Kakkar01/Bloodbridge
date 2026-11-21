@@ -10,74 +10,77 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
-const translations = {
-  EN: {
-    title: "BloodBridge Emergency Dispatch",
-    subtitle: "Vibrant Multi-Tab Geospatial Donor Matching & Urgency Escalation",
-    tabDispatch: "🚨 Dispatch & Map",
-    tabDonors: "🩸 Donors & Impact",
-    tabAudit: "📡 Audit & Stock",
-    raiseReq: "Raise Emergency Request",
-    bloodGroup: "Required Blood Group",
-    urgency: "Urgency Level",
-    moderate: "Moderate (15km)",
-    critical: "Critical (5km)",
-    broadcast: "Broadcast Emergency Alert",
-    dispatching: "Dispatching...",
-    matched: "Matched Verified Donors",
-    auditLog: "Live Notification Audit Log",
-    call: "Call",
-    whatsapp: "WhatsApp",
-    lifecycle: "Ticket Lifecycle Status",
-    demoBtn: "⚡ Load Demo Scenario",
-    inventoryToggle: "🏥 Hospital Stock",
-    logout: "Logout"
-  },
-  HI: {
-    title: "ब्लडब्रिज आपातकालीन प्रेषण",
-    subtitle: "मल्टी-टैब भू-स्थानिक दाता मिलान और तात्कालिकता वृद्धि",
-    tabDispatch: "🚨 डिस्पैच और मैप",
-    tabDonors: "🩸 दाता और प्रभाव",
-    tabAudit: "📡 ऑडिट और स्टॉक",
-    raiseReq: "आपातकालीन अनुरोध दर्ज करें",
-    bloodGroup: "आवश्यक रक्त समूह",
-    urgency: "तात्कालिकता स्तर",
-    moderate: "मध्यम (15किमी)",
-    critical: "गंभीर (5किमी)",
-    broadcast: "आपातकालीन चेतावनी प्रसारित करें",
-    dispatching: "प्रेषित हो रहा है...",
-    matched: "मेल खाने वाले सत्यापित दाता",
-    auditLog: "लाइव सूचना ऑडिट लॉग",
-    call: "कॉल करें",
-    whatsapp: "व्हाट्सएप",
-    lifecycle: "टिकट जीवनचक्र स्थिति",
-    demoBtn: "⚡ डेमो लोड करें",
-    inventoryToggle: "🏥 अस्पताल स्टॉक",
-    logout: "लॉगआउट"
-  },
-  PB: {
-    title: "ਬਲੱਡਬ੍ਰਿਜ ਐਮਰਜੈਂਸੀ ਡਿਸਪੈਚ",
-    subtitle: "ਮਲਟੀ-ਟੈਬ ਜੀਓਸਪੈਸ਼ਲ ਦਾਤਾ ਮੇਲ ਅਤੇ ਐਮਰਜੈਂਸੀ ਸਿਸਟਮ",
-    tabDispatch: "🚨 ਡਿਸਪੈਚ ਅਤੇ ਮੈਪ",
-    tabDonors: "🩸 ਦਾਤੇ ਅਤੇ ਪ੍ਰਭਾਵ",
-    tabAudit: "📡 ਆਡਿਟ ਅਤੇ ਸਟਾਕ",
-    raiseReq: "ਐਮਰਜੈਂਸੀ ਬੇਨਤੀ ਦਰਜ ਕਰੋ",
-    bloodGroup: "ਲੋੜੀਂਦਾ ਖੂਨ ਦਾ ਸਮੂਹ",
-    urgency: "ਜ਼ਰੂਰੀ ਪੱਧਰ",
-    moderate: "ਦਰਮਿਆਨੀ (15ਕਿਮੀ)",
-    critical: "ਗੰਭੀਰ (5ਕਿਮੀ)",
-    broadcast: "ਐਮਰਜੈਂਸੀ ਅਲਰਟ ਭੇਜੋ",
-    dispatching: "ਭੇਜ ਰਿਹਾ ਹੈ...",
-    matched: "ਮੇਲ ਖਾਂਦੇ ਤਸਦੀਕਸ਼ੁਦਾ ਦਾਤੇ",
-    auditLog: "ਲਾਈਵ ਨੋਟੀਫਿਕੇਸ਼ਨ ਆਡਿਟ ਲੌਗ",
-    call: "ਕਾਲ ਕਰੋ",
-    whatsapp: "ਵਟਸਐਪ",
-    lifecycle: "ਟਿਕਟ ਲਾਈਫਸਾਈਕਲ ਸਥਿਤੀ",
-    demoBtn: "⚡ ਡੈਮੋ ਲੋਡ ਕਰੋ",
-    inventoryToggle: "🏥 ਹਸਪਤਾਲ ਸਟਾਕ",
-    logout: "ਲੌਗਆਊਟ"
-  }
+const BLOOD_GROUPS = ['O_NEG', 'O_POS', 'A_NEG', 'A_POS', 'B_NEG', 'B_POS', 'AB_NEG', 'AB_POS'];
+
+const COMPATIBLE_RECIPIENTS = {
+  O_NEG: ['O_NEG', 'O_POS', 'A_NEG', 'A_POS', 'B_NEG', 'B_POS', 'AB_NEG', 'AB_POS'],
+  O_POS: ['O_POS', 'A_POS', 'B_POS', 'AB_POS'],
+  A_NEG: ['A_NEG', 'A_POS', 'AB_NEG', 'AB_POS'],
+  A_POS: ['A_POS', 'AB_POS'],
+  B_NEG: ['B_NEG', 'B_POS', 'AB_NEG', 'AB_POS'],
+  B_POS: ['B_POS', 'AB_POS'],
+  AB_NEG: ['AB_NEG', 'AB_POS'],
+  AB_POS: ['AB_POS']
 };
+
+function isBloodCompatible(donorGroup, patientGroup) {
+  return (COMPATIBLE_RECIPIENTS[donorGroup] || []).includes(patientGroup);
+}
+
+function inspectMedicalSignals(donor, patient) {
+  const flags = [];
+  let suggested = 'SUITABLE';
+
+  if (isBloodCompatible(donor.bloodGroup, patient.bloodGroup)) {
+    flags.push({
+      ok: true,
+      text: donor.bloodGroup === patient.bloodGroup
+        ? `Exact Group (${donor.bloodGroup.replace('_', ' ')})`
+        : `Compatible (${donor.bloodGroup.replace('_', ' ')} → ${patient.bloodGroup.replace('_', ' ')})`
+    });
+  } else {
+    suggested = 'NOT_SUITABLE';
+    flags.push({
+      ok: false,
+      text: `Incompatible (${donor.bloodGroup.replace('_', ' ')} → ${patient.bloodGroup.replace('_', ' ')})`
+    });
+  }
+
+  const hb = Number(donor.hemoglobin);
+  if (Number.isNaN(hb) || hb < 12.5) {
+    suggested = 'NOT_SUITABLE';
+    flags.push({ ok: false, text: `Hb ${hb || 0} g/dL (< 12.5)` });
+  } else {
+    flags.push({ ok: true, text: `Hb ${hb} g/dL` });
+  }
+
+  const days = Number(donor.daysSinceLastDonation);
+  if (Number.isNaN(days) || days < 90) {
+    if (suggested !== 'NOT_SUITABLE') suggested = 'REVIEW_NEEDED';
+    flags.push({ ok: false, text: `Last donation ${days || 0}d ago (< 90d)` });
+  } else {
+    flags.push({ ok: true, text: `Cooldown OK (${days}d)` });
+  }
+
+  if (donor.infectiousFlag) {
+    suggested = 'NOT_SUITABLE';
+    flags.push({ ok: false, text: 'Infectious Screening Flag' });
+  } else {
+    flags.push({ ok: true, text: 'Screening Clear' });
+  }
+
+  if (donor.recentFeverOrMeds) {
+    if (suggested !== 'NOT_SUITABLE') suggested = 'REVIEW_NEEDED';
+    flags.push({ ok: false, text: 'Recent Fever / Meds' });
+  }
+
+  if (patient.condition === 'Immunocompromised / Irradiated Need') {
+    if (suggested !== 'NOT_SUITABLE') suggested = 'REVIEW_NEEDED';
+    flags.push({ ok: false, text: 'Patient requires Irradiated unit' });
+  }
+
+  return { suggested, flags };
+}
 
 function LocationMarker({ position, setPosition }) {
   useMapEvents({
@@ -88,7 +91,7 @@ function LocationMarker({ position, setPosition }) {
 
   return position === null ? null : (
     <Marker position={position}>
-      <Popup>Emergency Incident Location</Popup>
+      <Popup>BloodBridge Dispatch Pin</Popup>
     </Marker>
   );
 }
@@ -96,178 +99,219 @@ function LocationMarker({ position, setPosition }) {
 export default function BloodBridgeDashboard() {
   const defaultCenter = [30.5160, 76.6598];
 
+  // Login & Dedicated Role ('donor' | 'needy' | 'doctor')
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userName, setUserName] = useState('');
-  const [userEmail, setUserEmail] = useState('');
-  const [userRole, setUserRole] = useState('Hospital Dispatch');
+  const [loginName, setLoginName] = useState('');
+  const [loginId, setLoginId] = useState('');
+  const [selectedRole, setSelectedRole] = useState('donor'); // 'donor' | 'needy' | 'doctor'
   const [loginError, setLoginError] = useState('');
 
-  const [activeTab, setActiveTab] = useState('dispatch');
   const [position, setPosition] = useState(defaultCenter);
-  const [bloodGroup, setBloodGroup] = useState('O_POS');
-  const [urgencyLevel, setUrgencyLevel] = useState('CRITICAL');
-  const [matchedDonors, setMatchedDonors] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [lang, setLang] = useState('EN');
-
-  const [ticketState, setTicketState] = useState('IDLE');
   const [auditLogs, setAuditLogs] = useState([]);
-  const [showHospitalStock, setShowHospitalStock] = useState(true);
 
-  const t = translations[lang];
+  // ER Patient Medical History State
+  const [patientInfo, setPatientInfo] = useState({
+    patientName: 'ER Trauma Bay #2',
+    bloodGroup: 'O_POS',
+    condition: 'Trauma / Acute Bleeding',
+    medicalHistory: 'Acute hemorrhage post road accident; no prior transfusion reaction'
+  });
 
-  const handleLoginSubmit = (e) => {
+  // Donor Submission Form State
+  const [donorSubmission, setDonorSubmission] = useState({
+    name: 'Aarav Sharma',
+    phoneNumber: '+919876543210',
+    bloodGroup: 'O_POS',
+    hemoglobin: 14.5,
+    daysSinceLastDonation: 120,
+    infectiousFlag: false,
+    recentFeverOrMeds: false,
+    reportFileName: 'CBC_Screening_Report.pdf',
+    reportNotes: 'Hb 14.5 g/dL, HIV/HBsAg/HCV Non-Reactive, BP 120/80'
+  });
+
+  // Submissions queue: doctorStatus = 'PENDING_DOCTOR' | 'SUITABLE' | 'NOT_SUITABLE'
+  const [submissions, setSubmissions] = useState([
+    {
+      id: 'sub-1',
+      name: 'Aarav Sharma',
+      phoneNumber: '+919876543210',
+      bloodGroup: 'O_POS',
+      hemoglobin: 14.5,
+      daysSinceLastDonation: 120,
+      infectiousFlag: false,
+      recentFeverOrMeds: false,
+      reportFileName: 'Aarav_CBC_Report.pdf',
+      reportNotes: 'Hb 14.5 g/dL, Screening Non-Reactive',
+      doctorStatus: 'PENDING_DOCTOR',
+      doctorRemark: ''
+    },
+    {
+      id: 'sub-2',
+      name: 'Rohan Verma',
+      phoneNumber: '+919123456789',
+      bloodGroup: 'O_NEG',
+      hemoglobin: 11.9,
+      daysSinceLastDonation: 150,
+      infectiousFlag: false,
+      recentFeverOrMeds: false,
+      reportFileName: 'Rohan_Lab_Report.pdf',
+      reportNotes: 'Hb 11.9 g/dL, mild anemia note in lab slip',
+      doctorStatus: 'PENDING_DOCTOR',
+      doctorRemark: ''
+    }
+  ]);
+
+  const [doctorRemarks, setDoctorRemarks] = useState({});
+
+  const handleLogin = (e) => {
     e.preventDefault();
-    if (!userName.trim() || !userEmail.trim()) {
-      setLoginError('Please enter both your name and email/ID.');
+    if (!loginName.trim() || !loginId.trim()) {
+      setLoginError('Please enter your name and ID/email.');
       return;
     }
     setLoginError('');
     setIsLoggedIn(true);
-    setActiveTab('dispatch');
     setAuditLogs(prev => [
-      `[${new Date().toLocaleTimeString()}] Auth: ${userName.trim()} (${userRole}) signed in.`,
+      `[${new Date().toLocaleTimeString()}] Login: ${loginName.trim()} entered as ${selectedRole.toUpperCase()}`,
       ...prev
     ]);
   };
 
-  const fillQuickDemoLogin = () => {
-    setUserName('Dr. Kavita Sharma');
-    setUserEmail('dispatch@bloodbridge.org');
-    setUserRole('Hospital Dispatch');
+  const quickFillRole = (role) => {
+    setSelectedRole(role);
     setLoginError('');
+    if (role === 'donor') {
+      setLoginName('Aarav Sharma');
+      setLoginId('donor@bloodbridge.org');
+    } else if (role === 'needy') {
+      setLoginName('ER Desk — City Hospital');
+      setLoginId('er@bloodbridge.org');
+    } else {
+      setLoginName('Dr. Meera Nair');
+      setLoginId('doctor@bloodbridge.org');
+    }
   };
 
   const handleLogout = () => {
     setIsLoggedIn(false);
-    setTicketState('IDLE');
   };
 
-  const handleDemoLoad = () => {
-    setBloodGroup('O_POS');
-    setUrgencyLevel('CRITICAL');
-    setMatchedDonors([
-      { id: '1', name: 'Aarav Sharma', phoneNumber: '+919876543210', bloodGroup: 'O_POS', isVerified: true, donationCount: 8 },
-      { id: '2', name: 'Rohan Verma', phoneNumber: '+919123456789', bloodGroup: 'O_NEG', isVerified: true, donationCount: 5 },
-      { id: '3', name: 'Priya Singh', phoneNumber: '+919811122233', bloodGroup: 'O_POS', isVerified: true, donationCount: 3 }
-    ]);
-    setTicketState('ACCEPTED');
-    setAuditLogs(prev => [
-      `[${new Date().toLocaleTimeString()}] DEMO INJECTOR: Loaded 3 high-priority verified donors.`,
-      ...prev
-    ]);
-    setActiveTab('donors');
-  };
-
-  const handleBroadcast = async (e) => {
+  const handleSubmitDonorReport = (e) => {
     e.preventDefault();
-    setLoading(true);
-    setTicketState('BROADCASTED');
-
+    const newEntry = {
+      id: `sub-${Date.now()}`,
+      ...donorSubmission,
+      doctorStatus: 'PENDING_DOCTOR',
+      doctorRemark: 'Awaiting doctor review of uploaded medical report & ER history'
+    };
+    setSubmissions(prev => [newEntry, ...prev]);
     setAuditLogs(prev => [
-      `[${new Date().toLocaleTimeString()}] System: Initialized 2DSphere radius query for ${bloodGroup} (${urgencyLevel})`,
+      `[${new Date().toLocaleTimeString()}] Donor ${newEntry.name} submitted medical report (${newEntry.reportFileName}) → Sent to Doctor for suitability decision.`,
       ...prev
     ]);
-
-    try {
-      const response = await fetch('http://localhost:8080/api/matching/broadcast', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          bloodGroup,
-          longitude: position[1],
-          latitude: position[0],
-          urgencyLevel
-        })
-      });
-      const data = await response.json();
-      setMatchedDonors(data);
-      if (data.length > 0) setTicketState('ACCEPTED');
-
-      setAuditLogs(prev => [
-        `[${new Date().toLocaleTimeString()}] Dispatch Gateway: Matched ${data.length} verified donors.`,
-        ...prev
-      ]);
-    } catch (error) {
-      handleDemoLoad();
-    } finally {
-      setLoading(false);
-    }
   };
 
+  const handleDoctorDecision = (id, decision) => {
+    const customNote = (doctorRemarks[id] || '').trim();
+    const defaultNote =
+      decision === 'SUITABLE'
+        ? 'Approved by Doctor after checking medical report & patient history.'
+        : 'Marked Not Suitable by Doctor after clinical/report review.';
+
+    setSubmissions(prev =>
+      prev.map(item => {
+        if (item.id !== id) return item;
+        setAuditLogs(logs => [
+          `[${new Date().toLocaleTimeString()}] Doctor ${loginName || 'Panel'} marked ${item.name} as ${decision}.`,
+          ...logs
+        ]);
+        return {
+          ...item,
+          doctorStatus: decision,
+          doctorRemark: customNote || defaultNote
+        };
+      })
+    );
+  };
+
+  // LOGIN SCREEN WITH EXPLICIT ROLE SELECTION (DONOR / NEEDY / DOCTOR)
   if (!isLoggedIn) {
     return (
       <div className="bb-bright-shell">
         <div className="bb-login-wrapper">
-          <div className="bb-login-card">
-            <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+          <div className="bb-login-card" style={{ maxWidth: '470px' }}>
+            <div style={{ textAlign: 'center', marginBottom: '18px' }}>
               <span style={{
                 display: 'inline-block',
-                background: 'linear-gradient(135deg, #ffe4e6, #ffedd5)',
-                color: '#e11d48',
+                background: 'linear-gradient(135deg, #ffe4e6, #e0f2fe)',
+                color: '#0f172a',
                 fontWeight: 800,
                 fontSize: '11px',
                 padding: '5px 12px',
                 borderRadius: '999px',
-                marginBottom: '10px'
+                marginBottom: '8px'
               }}>
-                ⚡ EMERGENCY RESPONSE PORTAL
+                🩺 DONOR · DOCTOR · NEEDY WORKFLOW
               </span>
               <h1 className="bb-hero-title" style={{ fontSize: '24px' }}>BloodBridge Login</h1>
               <p style={{ margin: '6px 0 0 0', fontSize: '13px', color: '#475569' }}>
-                Sign in to trigger geospatial alerts & manage donor dispatch
+                Select who is logging in to open their dedicated workspace
               </p>
             </div>
 
-            <form onSubmit={handleLoginSubmit}>
-              <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
-                Full Name
+            <form onSubmit={handleLogin}>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, marginBottom: '6px' }}>
+                Who is logging in?
               </label>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px', marginBottom: '14px' }}>
+                {[
+                  { key: 'donor', label: '🩸 Donor' },
+                  { key: 'needy', label: '🚨 Needy (ER)' },
+                  { key: 'doctor', label: '🩺 Doctor' }
+                ].map(r => (
+                  <button
+                    key={r.key}
+                    type="button"
+                    onClick={() => setSelectedRole(r.key)}
+                    className="bb-action-btn"
+                    style={{
+                      padding: '10px 8px',
+                      fontSize: '12px',
+                      background: selectedRole === r.key
+                        ? 'linear-gradient(135deg, #ff2a5f, #ff7a00)'
+                        : '#f1f5f9',
+                      color: selectedRole === r.key ? '#ffffff' : '#334155',
+                      border: selectedRole === r.key ? 'none' : '1px solid #cbd5e1'
+                    }}
+                  >
+                    {r.label}
+                  </button>
+                ))}
+              </div>
+
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, marginBottom: '6px' }}>Full Name</label>
               <input
                 type="text"
                 placeholder="Enter your name"
-                value={userName}
-                onChange={(e) => setUserName(e.target.value)}
+                value={loginName}
+                onChange={(e) => setLoginName(e.target.value)}
                 className="bb-login-input"
-                style={{ marginBottom: '14px' }}
+                style={{ marginBottom: '12px' }}
               />
 
-              <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
-                Email or Responder ID
-              </label>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, marginBottom: '6px' }}>Email or ID</label>
               <input
                 type="text"
                 placeholder="name@hospital.org"
-                value={userEmail}
-                onChange={(e) => setUserEmail(e.target.value)}
+                value={loginId}
+                onChange={(e) => setLoginId(e.target.value)}
                 className="bb-login-input"
                 style={{ marginBottom: '14px' }}
               />
 
-              <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
-                Access Role
-              </label>
-              <select
-                value={userRole}
-                onChange={(e) => setUserRole(e.target.value)}
-                className="bb-login-input"
-                style={{ marginBottom: '18px', fontWeight: 600 }}
-              >
-                <option value="Hospital Dispatch">🏥 Hospital Dispatch</option>
-                <option value="Verified Donor">🩸 Verified Donor</option>
-                <option value="Blood Bank Admin">🏦 Blood Bank Admin</option>
-              </select>
-
               {loginError && (
-                <div style={{
-                  backgroundColor: '#ffe4e6',
-                  color: '#be123c',
-                  padding: '9px 12px',
-                  borderRadius: '10px',
-                  fontSize: '12px',
-                  fontWeight: 700,
-                  marginBottom: '14px'
-                }}>
+                <div style={{ backgroundColor: '#ffe4e6', color: '#be123c', padding: '8px 12px', borderRadius: '10px', fontSize: '12px', fontWeight: 700, marginBottom: '12px' }}>
                   {loginError}
                 </div>
               )}
@@ -277,31 +321,27 @@ export default function BloodBridgeDashboard() {
                 className="bb-action-btn"
                 style={{
                   width: '100%',
-                  padding: '13px',
+                  padding: '12px',
                   fontSize: '14px',
-                  background: 'linear-gradient(135deg, #ff2a5f 0%, #ff7a00 100%)',
+                  background: 'linear-gradient(135deg, #ff2a5f, #ff7a00)',
                   color: '#ffffff',
-                  boxShadow: '0 10px 22px rgba(255, 42, 95, 0.32)',
                   marginBottom: '10px'
                 }}
               >
-                Enter Command Center →
+                Login as {selectedRole === 'donor' ? 'Donor' : selectedRole === 'needy' ? 'Needy (ER)' : 'Doctor'} →
               </button>
 
-              <button
-                type="button"
-                onClick={fillQuickDemoLogin}
-                className="bb-action-btn"
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  fontSize: '12px',
-                  background: 'linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%)',
-                  color: '#ffffff'
-                }}
-              >
-                ✨ Auto-Fill Demo Responder
-              </button>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '6px' }}>
+                <button type="button" onClick={() => quickFillRole('donor')} className="bb-action-btn" style={{ padding: '7px', fontSize: '11px', background: '#e0f2fe', color: '#0369a1' }}>
+                  Demo Donor
+                </button>
+                <button type="button" onClick={() => quickFillRole('needy')} className="bb-action-btn" style={{ padding: '7px', fontSize: '11px', background: '#ffe4e6', color: '#be123c' }}>
+                  Demo Needy
+                </button>
+                <button type="button" onClick={() => quickFillRole('doctor')} className="bb-action-btn" style={{ padding: '7px', fontSize: '11px', background: '#ede9fe', color: '#6d28d9' }}>
+                  Demo Doctor
+                </button>
+              </div>
             </form>
           </div>
         </div>
@@ -309,343 +349,425 @@ export default function BloodBridgeDashboard() {
     );
   }
 
+  const suitableDonorsForNeedy = submissions.filter(s => s.doctorStatus === 'SUITABLE');
+
   return (
     <div className="bb-bright-shell">
       <div className="bb-bright-container">
         <header className="bb-top-banner">
           <div>
-            <h1 className="bb-hero-title">⚡ {t.title}</h1>
-            <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#475569', fontWeight: 500 }}>{t.subtitle}</p>
+            <h1 className="bb-hero-title">
+              {selectedRole === 'donor' && '🩸 Donor Portal — Medical Report Submission'}
+              {selectedRole === 'needy' && '🚨 Needy (ER) Portal — Doctor-Cleared Matches'}
+              {selectedRole === 'doctor' && '🩺 Doctor Review Desk — Suitability Decision'}
+            </h1>
+            <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#475569', fontWeight: 500 }}>
+              Dedicated role workspace (use Logout to switch between Donor, Needy, and Doctor)
+            </p>
           </div>
 
           <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
             <span className="bb-welcome-pill">
-              Welcome back, {userName} · {userRole}
+              {loginName} · Role: {selectedRole.toUpperCase()}
             </span>
-
-            <button
-              type="button"
-              onClick={handleDemoLoad}
-              className="bb-action-btn"
-              style={{
-                background: 'linear-gradient(135deg, #7c3aed 0%, #ec4899 100%)',
-                color: '#ffffff',
-                padding: '9px 14px',
-                fontSize: '12px',
-                boxShadow: '0 8px 18px rgba(124, 58, 237, 0.28)'
-              }}
-            >
-              {t.demoBtn}
-            </button>
-
-            <div style={{ display: 'flex', backgroundColor: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '10px', padding: '3px' }}>
-              {['EN', 'HI', 'PB'].map((l) => (
-                <button
-                  key={l}
-                  type="button"
-                  onClick={() => setLang(l)}
-                  className="bb-action-btn"
-                  style={{
-                    background: lang === l ? 'linear-gradient(135deg, #0284c7, #2563eb)' : 'transparent',
-                    color: lang === l ? '#ffffff' : '#334155',
-                    padding: '6px 10px',
-                    borderRadius: '7px',
-                    fontSize: '12px'
-                  }}
-                >
-                  {l}
-                </button>
-              ))}
-            </div>
-
             <button
               type="button"
               onClick={handleLogout}
               className="bb-action-btn"
-              style={{
-                background: 'linear-gradient(135deg, #334155, #0f172a)',
-                color: '#ffffff',
-                padding: '8px 12px',
-                fontSize: '12px'
-              }}
+              style={{ background: '#0f172a', color: '#ffffff', padding: '8px 14px', fontSize: '12px' }}
             >
-              {t.logout}
+              Logout
             </button>
-
-            <span
-              className="bb-pulse-badge"
-              style={{
-                background: 'linear-gradient(135deg, #ef4444, #f97316)',
-                color: '#ffffff',
-                padding: '7px 13px',
-                borderRadius: '999px',
-                fontSize: '11px',
-                fontWeight: 800
-              }}
-            >
-              ● LIVE SOS
-            </span>
           </div>
         </header>
 
-        <nav className="bb-tab-bar" aria-label="Dashboard Sections">
-          <button
-            type="button"
-            onClick={() => setActiveTab('dispatch')}
-            className={`bb-tab-btn ${activeTab === 'dispatch' ? 'bb-tab-active' : ''}`}
-          >
-            {t.tabDispatch}
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab('donors')}
-            className={`bb-tab-btn ${activeTab === 'donors' ? 'bb-tab-active' : ''}`}
-          >
-            {t.tabDonors} ({matchedDonors.length})
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab('audit')}
-            className={`bb-tab-btn ${activeTab === 'audit' ? 'bb-tab-active' : ''}`}
-          >
-            {t.tabAudit}
-          </button>
-        </nav>
+        {/* DEDICATED DONOR DASHBOARD */}
+        {selectedRole === 'donor' && (
+          <div key="donor-workspace" className="bb-tab-panel bb-dispatch-grid" style={{ marginTop: '20px' }}>
+            <div className="bb-bright-card">
+              <form onSubmit={handleSubmitDonorReport}>
+                <h2 style={{ margin: '0 0 14px 0', fontSize: '18px', fontWeight: 800, color: '#0369a1' }}>
+                  Submit Donation & Medical Report
+                </h2>
 
-        {activeTab === 'dispatch' && (
-          <div key="tab-dispatch" className="bb-tab-panel bb-dispatch-grid">
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
-              <div className="bb-bright-card">
-                <form onSubmit={handleBroadcast}>
-                  <h2 style={{ margin: '0 0 14px 0', fontSize: '18px', fontWeight: 800, color: '#be123c' }}>{t.raiseReq}</h2>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, marginBottom: '5px' }}>Donor Name</label>
+                <input
+                  type="text"
+                  value={donorSubmission.name}
+                  onChange={(e) => setDonorSubmission({ ...donorSubmission, name: e.target.value })}
+                  className="bb-login-input"
+                  style={{ marginBottom: '12px' }}
+                />
 
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
-                    {t.bloodGroup}
-                  </label>
-                  <select
-                    value={bloodGroup}
-                    onChange={(e) => setBloodGroup(e.target.value)}
-                    style={{
-                      width: '100%',
-                      padding: '11px 13px',
-                      borderRadius: '11px',
-                      border: '2px solid #e2e8f0',
-                      backgroundColor: '#ffffff',
-                      color: '#0f172a',
-                      fontWeight: 600,
-                      marginBottom: '14px'
-                    }}
-                  >
-                    {['A_POS', 'A_NEG', 'B_POS', 'B_NEG', 'AB_POS', 'AB_NEG', 'O_POS', 'O_NEG'].map((bg) => (
-                      <option key={bg} value={bg}>{bg.replace('_', ' ')}</option>
-                    ))}
-                  </select>
-
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
-                    {t.urgency}
-                  </label>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '18px' }}>
-                    <button
-                      type="button"
-                      onClick={() => setUrgencyLevel('MODERATE')}
-                      className="bb-action-btn"
-                      style={{
-                        padding: '10px',
-                        fontSize: '12px',
-                        background: urgencyLevel === 'MODERATE' ? 'linear-gradient(135deg, #f59e0b, #f97316)' : '#f1f5f9',
-                        color: urgencyLevel === 'MODERATE' ? '#ffffff' : '#475569'
-                      }}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '12px' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, marginBottom: '5px' }}>Blood Group</label>
+                    <select
+                      value={donorSubmission.bloodGroup}
+                      onChange={(e) => setDonorSubmission({ ...donorSubmission, bloodGroup: e.target.value })}
+                      className="bb-login-input"
                     >
-                      {t.moderate}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setUrgencyLevel('CRITICAL')}
-                      className="bb-action-btn"
-                      style={{
-                        padding: '10px',
-                        fontSize: '12px',
-                        background: urgencyLevel === 'CRITICAL' ? 'linear-gradient(135deg, #e11d48, #f43f5e)' : '#f1f5f9',
-                        color: urgencyLevel === 'CRITICAL' ? '#ffffff' : '#475569'
-                      }}
-                    >
-                      {t.critical}
-                    </button>
+                      {BLOOD_GROUPS.map(bg => <option key={bg} value={bg}>{bg.replace('_', ' ')}</option>)}
+                    </select>
                   </div>
 
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="bb-action-btn"
-                    style={{
-                      width: '100%',
-                      padding: '13px',
-                      fontSize: '14px',
-                      background: 'linear-gradient(135deg, #ff2a5f 0%, #ff6b00 100%)',
-                      color: '#ffffff',
-                      boxShadow: '0 10px 22px rgba(255, 42, 95, 0.32)'
-                    }}
-                  >
-                    {loading ? t.dispatching : t.broadcast}
-                  </button>
-                </form>
-              </div>
-
-              <div className="bb-bright-card">
-                <h3 style={{ margin: '0 0 10px 0', fontSize: '15px', fontWeight: 800, color: '#0369a1' }}>{t.lifecycle}</h3>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', fontWeight: 700 }}>
-                  <span style={{ color: ticketState !== 'IDLE' ? '#16a34a' : '#64748b' }}>1. Broadcast</span>
-                  <span>➔</span>
-                  <span style={{ color: ticketState === 'ACCEPTED' || ticketState === 'FULFILLED' ? '#16a34a' : '#64748b' }}>2. Accepted</span>
-                  <span>➔</span>
-                  <span style={{ color: ticketState === 'FULFILLED' ? '#16a34a' : '#64748b' }}>3. Fulfilled</span>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, marginBottom: '5px' }}>Hemoglobin (g/dL)</label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={donorSubmission.hemoglobin}
+                      onChange={(e) => setDonorSubmission({ ...donorSubmission, hemoglobin: e.target.value })}
+                      className="bb-login-input"
+                    />
+                  </div>
                 </div>
-                {ticketState !== 'IDLE' && (
-                  <button
-                    type="button"
-                    onClick={() => setTicketState('FULFILLED')}
-                    className="bb-action-btn"
-                    style={{
-                      width: '100%',
-                      marginTop: '12px',
-                      padding: '9px',
-                      fontSize: '12px',
-                      background: 'linear-gradient(135deg, #10b981, #059669)',
-                      color: '#ffffff'
-                    }}
-                  >
-                    Mark as Fulfilled & Cooldown
-                  </button>
-                )}
-              </div>
-            </div>
 
-            <div className="bb-bright-card" style={{ padding: 0, overflow: 'hidden', height: '420px', position: 'relative' }}>
-              <div style={{ position: 'absolute', top: '12px', right: '12px', zIndex: 1000 }}>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, marginBottom: '5px' }}>
+                  Days Since Last Donation
+                </label>
+                <input
+                  type="number"
+                  value={donorSubmission.daysSinceLastDonation}
+                  onChange={(e) => setDonorSubmission({ ...donorSubmission, daysSinceLastDonation: e.target.value })}
+                  className="bb-login-input"
+                  style={{ marginBottom: '12px' }}
+                />
+
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, marginBottom: '5px' }}>
+                  Attach Medical Report File
+                </label>
+                <input
+                  type="file"
+                  accept=".pdf,.jpg,.jpeg,.png"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      setDonorSubmission(prev => ({ ...prev, reportFileName: file.name }));
+                    }
+                  }}
+                  className="bb-login-input"
+                  style={{ marginBottom: '12px', padding: '9px' }}
+                />
+
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, marginBottom: '5px' }}>
+                  Medical Report Lab Findings
+                </label>
+                <textarea
+                  rows={2}
+                  value={donorSubmission.reportNotes}
+                  onChange={(e) => setDonorSubmission({ ...donorSubmission, reportNotes: e.target.value })}
+                  className="bb-login-input"
+                  style={{ marginBottom: '12px' }}
+                />
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px', fontSize: '13px', fontWeight: 600 }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={donorSubmission.infectiousFlag}
+                      onChange={(e) => setDonorSubmission({ ...donorSubmission, infectiousFlag: e.target.checked })}
+                    />
+                    Infectious Screening Flag Present
+                  </label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={donorSubmission.recentFeverOrMeds}
+                      onChange={(e) => setDonorSubmission({ ...donorSubmission, recentFeverOrMeds: e.target.checked })}
+                    />
+                    Recent Fever / Medication in Last 14 Days
+                  </label>
+                </div>
+
                 <button
-                  type="button"
-                  onClick={() => setShowHospitalStock(!showHospitalStock)}
+                  type="submit"
                   className="bb-action-btn"
                   style={{
-                    background: showHospitalStock ? 'linear-gradient(135deg, #0284c7, #2563eb)' : '#ffffff',
-                    color: showHospitalStock ? '#ffffff' : '#0f172a',
-                    padding: '8px 12px',
-                    fontSize: '12px',
-                    boxShadow: '0 6px 16px rgba(15, 23, 42, 0.16)'
+                    width: '100%',
+                    padding: '12px',
+                    fontSize: '13px',
+                    background: 'linear-gradient(135deg, #0ea5e9, #2563eb)',
+                    color: '#ffffff'
                   }}
                 >
-                  {t.inventoryToggle}: {showHospitalStock ? 'ON' : 'OFF'}
+                  Submit Report for Doctor Approval
                 </button>
-              </div>
-              <MapContainer center={defaultCenter} zoom={14} scrollWheelZoom={false} style={{ height: '100%', width: '100%' }}>
-                <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                <LocationMarker position={position} setPosition={setPosition} />
-              </MapContainer>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'donors' && (
-          <div key="tab-donors" className="bb-tab-panel">
-            <div className="bb-kpi-row">
-              <div className="bb-kpi-tile" style={{ background: 'linear-gradient(135deg, #ff2a5f, #ff7a00)' }}>
-                <div style={{ fontSize: '12px', opacity: 0.92, fontWeight: 600 }}>Avg Response Time</div>
-                <div style={{ fontSize: '24px', fontWeight: 800, marginTop: '4px' }}>3.4 mins</div>
-              </div>
-              <div className="bb-kpi-tile" style={{ background: 'linear-gradient(135deg, #0ea5e9, #6366f1)' }}>
-                <div style={{ fontSize: '12px', opacity: 0.92, fontWeight: 600 }}>Active Search Radius</div>
-                <div style={{ fontSize: '24px', fontWeight: 800, marginTop: '4px' }}>5km – 15km</div>
-              </div>
-              <div className="bb-kpi-tile" style={{ background: 'linear-gradient(135deg, #10b981, #0d9488)' }}>
-                <div style={{ fontSize: '12px', opacity: 0.92, fontWeight: 600 }}>Units Fulfilled</div>
-                <div style={{ fontSize: '24px', fontWeight: 800, marginTop: '4px' }}>42 Units</div>
-              </div>
+              </form>
             </div>
 
-            <div className="bb-bright-card">
-              <h3 style={{ margin: '0 0 14px 0', fontSize: '18px', fontWeight: 800, color: '#0f172a' }}>
-                {t.matched} ({matchedDonors.length})
-              </h3>
-              {matchedDonors.length === 0 ? (
-                <p style={{ color: '#475569', fontSize: '14px', margin: 0 }}>
-                  Abhi koi donor list load nahi hui. <b>⚡ Load Demo Scenario</b> click karo ya <b>Dispatch & Map</b> tab se broadcast bhejo.
-                </p>
-              ) : (
-                matchedDonors.map((donor) => (
-                  <div key={donor.id} className="bb-donor-card">
-                    <div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                        <h4 style={{ margin: 0, fontSize: '16px', fontWeight: 800, color: '#0f172a' }}>{donor.name}</h4>
-                        {donor.isVerified && (
-                          <span style={{ backgroundColor: '#dcfce7', color: '#15803d', fontSize: '11px', fontWeight: 700, padding: '2px 8px', borderRadius: '999px' }}>
-                            ✓ Verified
-                          </span>
-                        )}
-                        <span style={{ backgroundColor: '#e0f2fe', color: '#0369a1', fontSize: '11px', fontWeight: 700, padding: '2px 8px', borderRadius: '999px' }}>
-                          🏆 {donor.donationCount} Donations
-                        </span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+              <div className="bb-bright-card">
+                <h3 style={{ margin: '0 0 12px 0', fontSize: '17px', fontWeight: 800 }}>
+                  My Submitted Reports & Doctor Status
+                </h3>
+                {submissions.map(sub => (
+                  <div key={sub.id} className="bb-donor-card" style={{ display: 'block' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                      <div>
+                        <b>{sub.name}</b> ({sub.bloodGroup.replace('_', ' ')}) · Hb: <b>{sub.hemoglobin} g/dL</b> · Report: <b>{sub.reportFileName}</b>
+                        <div style={{ fontSize: '12px', color: '#475569', marginTop: '4px' }}>
+                          Doctor Note: {sub.doctorRemark}
+                        </div>
                       </div>
-                      <p style={{ margin: '6px 0 0 0', fontSize: '13px', color: '#475569' }}>
-                        Blood Group:{' '}
-                        <span style={{ backgroundColor: '#ffe4e6', color: '#be123c', fontWeight: 800, padding: '2px 8px', borderRadius: '6px' }}>
-                          {donor.bloodGroup.replace('_', ' ')}
-                        </span>
-                      </p>
-                    </div>
-
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                      <a
-                        href={`https://wa.me/${donor.phoneNumber}?text=URGENT%20Blood%20Required!`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="bb-action-btn"
-                        style={{ background: 'linear-gradient(135deg, #16a34a, #15803d)', color: '#ffffff', padding: '8px 13px', textDecoration: 'none', fontSize: '12px' }}
+                      <span
+                        style={{
+                          padding: '5px 11px',
+                          borderRadius: '999px',
+                          fontSize: '11px',
+                          fontWeight: 800,
+                          backgroundColor:
+                            sub.doctorStatus === 'SUITABLE' ? '#dcfce7' :
+                            sub.doctorStatus === 'NOT_SUITABLE' ? '#ffe4e6' : '#fef3c7',
+                          color:
+                            sub.doctorStatus === 'SUITABLE' ? '#15803d' :
+                            sub.doctorStatus === 'NOT_SUITABLE' ? '#be123c' : '#92400e'
+                        }}
                       >
-                        {t.whatsapp}
-                      </a>
-                      <a
-                        href={`tel:${donor.phoneNumber}`}
-                        className="bb-action-btn"
-                        style={{ background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', color: '#ffffff', padding: '8px 13px', textDecoration: 'none', fontSize: '12px' }}
-                      >
-                        {t.call}
-                      </a>
+                        {sub.doctorStatus === 'SUITABLE' && '✓ SUITABLE (DOCTOR APPROVED)'}
+                        {sub.doctorStatus === 'NOT_SUITABLE' && '✕ NOT SUITABLE'}
+                        {sub.doctorStatus === 'PENDING_DOCTOR' && '⏳ PENDING DOCTOR REVIEW'}
+                      </span>
                     </div>
                   </div>
-                ))
-              )}
+                ))}
+              </div>
+
+              <div className="bb-bright-card" style={{ padding: 0, overflow: 'hidden', height: '240px' }}>
+                <MapContainer center={defaultCenter} zoom={14} scrollWheelZoom={false} style={{ height: '100%', width: '100%' }}>
+                  <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                  <LocationMarker position={position} setPosition={setPosition} />
+                </MapContainer>
+              </div>
             </div>
           </div>
         )}
 
-        {activeTab === 'audit' && (
-          <div key="tab-audit" className="bb-tab-panel" style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+        {/* DEDICATED DOCTOR GATEKEEPER DASHBOARD */}
+        {selectedRole === 'doctor' && (
+          <div key="doctor-workspace" className="bb-tab-panel" style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '18px' }}>
             <div className="bb-bright-card">
-              <h3 style={{ margin: '0 0 12px 0', fontSize: '17px', fontWeight: 800, color: '#7c3aed' }}>🏥 Nearby Blood Bank Stock</h3>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '14px' }}>
-                <div style={{ background: 'linear-gradient(135deg, #fff1f2, #ffe4e6)', border: '1px solid #fecdd3', borderRadius: '14px', padding: '14px' }}>
-                  <div style={{ fontWeight: 800, color: '#9f1239' }}>Civil Hospital Bank</div>
-                  <div style={{ fontSize: '13px', color: '#4c0519', marginTop: '4px' }}>4 Units O+ • 3 Units A+</div>
-                </div>
-                <div style={{ background: 'linear-gradient(135deg, #eff6ff, #dbeafe)', border: '1px solid #bfdbfe', borderRadius: '14px', padding: '14px' }}>
-                  <div style={{ fontWeight: 800, color: '#1e40af' }}>Red Cross Unit</div>
-                  <div style={{ fontSize: '13px', color: '#172554', marginTop: '4px' }}>2 Units O− • 5 Units B+</div>
-                </div>
-              </div>
+              <h2 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: 800, color: '#6d28d9' }}>
+                🩺 Doctor Suitability Review Queue
+              </h2>
+              <p style={{ margin: '0 0 14px 0', fontSize: '13px', color: '#475569' }}>
+                Active ER Case: <b>{patientInfo.patientName}</b> ({patientInfo.bloodGroup.replace('_', ' ')}) — History: <b>{patientInfo.medicalHistory}</b>
+              </p>
+
+              {submissions.map(sub => {
+                const signal = inspectMedicalSignals(sub, patientInfo);
+                return (
+                  <div key={sub.id} className="bb-donor-card" style={{ display: 'block', borderLeftColor: '#7c3aed' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+                      <div>
+                        <span style={{ fontSize: '16px', fontWeight: 800 }}>{sub.name}</span>
+                        <span style={{ marginLeft: '8px', fontSize: '12px', fontWeight: 700, color: '#6d28d9' }}>
+                          {sub.bloodGroup.replace('_', ' ')} · Report: {sub.reportFileName}
+                        </span>
+                        <div style={{ fontSize: '12px', color: '#334155', marginTop: '4px' }}>
+                          Lab Notes: <b>{sub.reportNotes}</b>
+                        </div>
+                      </div>
+
+                      <span
+                        style={{
+                          padding: '5px 11px',
+                          borderRadius: '999px',
+                          fontSize: '11px',
+                          fontWeight: 800,
+                          backgroundColor:
+                            sub.doctorStatus === 'SUITABLE' ? '#dcfce7' :
+                            sub.doctorStatus === 'NOT_SUITABLE' ? '#ffe4e6' : '#ede9fe',
+                          color:
+                            sub.doctorStatus === 'SUITABLE' ? '#15803d' :
+                            sub.doctorStatus === 'NOT_SUITABLE' ? '#be123c' : '#5b21b6'
+                        }}
+                      >
+                        Decision: {sub.doctorStatus} (System Hint: {signal.suggested})
+                      </span>
+                    </div>
+
+                    <div style={{ marginTop: '8px' }}>
+                      {signal.flags.map((f, idx) => (
+                        <span
+                          key={idx}
+                          className="bb-check-chip"
+                          style={{
+                            backgroundColor: f.ok ? '#f0fdf4' : '#fef2f2',
+                            color: f.ok ? '#166534' : '#991b1b'
+                          }}
+                        >
+                          {f.ok ? '✓' : '✕'} {f.text}
+                        </span>
+                      ))}
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '10px', marginTop: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
+                      <input
+                        type="text"
+                        placeholder="Doctor clinical remark (optional)..."
+                        value={doctorRemarks[sub.id] || ''}
+                        onChange={(e) => setDoctorRemarks(prev => ({ ...prev, [sub.id]: e.target.value }))}
+                        className="bb-login-input"
+                        style={{ flex: 1, minWidth: '220px', padding: '8px 12px', fontSize: '12px' }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleDoctorDecision(sub.id, 'SUITABLE')}
+                        className="bb-action-btn"
+                        style={{ background: 'linear-gradient(135deg, #16a34a, #15803d)', color: '#ffffff', padding: '9px 14px', fontSize: '12px' }}
+                      >
+                        ✓ Mark Suitable
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDoctorDecision(sub.id, 'NOT_SUITABLE')}
+                        className="bb-action-btn"
+                        style={{ background: 'linear-gradient(135deg, #e11d48, #be123c)', color: '#ffffff', padding: '9px 14px', fontSize: '12px' }}
+                      >
+                        ✕ Not Suitable
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* DEDICATED NEEDY (ER) DASHBOARD */}
+        {selectedRole === 'needy' && (
+          <div key="needy-workspace" className="bb-tab-panel bb-dispatch-grid" style={{ marginTop: '20px' }}>
+            <div className="bb-bright-card">
+              <h2 style={{ margin: '0 0 14px 0', fontSize: '18px', fontWeight: 800, color: '#be123c' }}>
+                ER Patient Medical History
+              </h2>
+
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, marginBottom: '5px' }}>Patient / Bay</label>
+              <input
+                type="text"
+                value={patientInfo.patientName}
+                onChange={(e) => setPatientInfo({ ...patientInfo, patientName: e.target.value })}
+                className="bb-login-input"
+                style={{ marginBottom: '12px' }}
+              />
+
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, marginBottom: '5px' }}>Required Blood Group</label>
+              <select
+                value={patientInfo.bloodGroup}
+                onChange={(e) => setPatientInfo({ ...patientInfo, bloodGroup: e.target.value })}
+                className="bb-login-input"
+                style={{ marginBottom: '12px' }}
+              >
+                {BLOOD_GROUPS.map(bg => <option key={bg} value={bg}>{bg.replace('_', ' ')}</option>)}
+              </select>
+
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, marginBottom: '5px' }}>Condition</label>
+              <select
+                value={patientInfo.condition}
+                onChange={(e) => setPatientInfo({ ...patientInfo, condition: e.target.value })}
+                className="bb-login-input"
+                style={{ marginBottom: '12px' }}
+              >
+                <option value="Trauma / Acute Bleeding">Trauma / Acute Bleeding</option>
+                <option value="Severe Anemia">Severe Anemia</option>
+                <option value="Immunocompromised / Irradiated Need">Immunocompromised / Irradiated Need</option>
+                <option value="Surgery / Post-Op">Surgery / Post-Op</option>
+              </select>
+
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, marginBottom: '5px' }}>Medical History Notes</label>
+              <textarea
+                rows={3}
+                value={patientInfo.medicalHistory}
+                onChange={(e) => setPatientInfo({ ...patientInfo, medicalHistory: e.target.value })}
+                className="bb-login-input"
+              />
             </div>
 
-            <div className="bb-bright-card">
-              <h3 style={{ margin: '0 0 12px 0', fontSize: '17px', fontWeight: 800, color: '#0f172a' }}>{t.auditLog}</h3>
-              <div className="bb-terminal-bright">
-                {auditLogs.length === 0 ? (
-                  <span style={{ color: '#94a3b8' }}>[System Ready] Switch to Dispatch & Map to trigger a broadcast or click Load Demo Scenario...</span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+              <div className="bb-bright-card">
+                <h3 style={{ margin: '0 0 12px 0', fontSize: '17px', fontWeight: 800 }}>
+                  Doctor-Approved Suitable Donors ({suitableDonorsForNeedy.length})
+                </h3>
+
+                {suitableDonorsForNeedy.length === 0 ? (
+                  <p style={{ margin: 0, fontSize: '13px', color: '#475569' }}>
+                    Abhi kisi donor ko Doctor ne <b>SUITABLE</b> approve nahi kiya hai. Login as <b>Doctor</b> to review submitted reports first.
+                  </p>
                 ) : (
-                  auditLogs.map((log, idx) => <div key={idx} style={{ marginBottom: '6px' }}>{log}</div>)
+                  suitableDonorsForNeedy.map(d => {
+                    const signal = inspectMedicalSignals(d, patientInfo);
+                    return (
+                      <div key={d.id} className="bb-donor-card" style={{ display: 'block', borderLeftColor: '#16a34a' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                          <div>
+                            <b style={{ fontSize: '15px' }}>{d.name}</b> ({d.bloodGroup.replace('_', ' ')}) · Hb: <b>{d.hemoglobin} g/dL</b>
+                            <div style={{ fontSize: '12px', color: '#15803d', fontWeight: 600, marginTop: '3px' }}>
+                              Doctor Clearance: {d.doctorRemark}
+                            </div>
+                          </div>
+
+                          <div style={{ display: 'flex', gap: '8px' }}>
+                            <a
+                              href={`https://wa.me/${d.phoneNumber}?text=Urgent%20ER%20Blood%20Need%20(${patientInfo.bloodGroup})%20at%20${encodeURIComponent(patientInfo.patientName)}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="bb-action-btn"
+                              style={{ background: '#16a34a', color: '#ffffff', padding: '7px 12px', textDecoration: 'none', fontSize: '12px' }}
+                            >
+                              WhatsApp
+                            </a>
+                            <a
+                              href={`tel:${d.phoneNumber}`}
+                              className="bb-action-btn"
+                              style={{ background: '#2563eb', color: '#ffffff', padding: '7px 12px', textDecoration: 'none', fontSize: '12px' }}
+                            >
+                              Call
+                            </a>
+                          </div>
+                        </div>
+
+                        <div style={{ marginTop: '8px' }}>
+                          {signal.flags.map((f, idx) => (
+                            <span
+                              key={idx}
+                              className="bb-check-chip"
+                              style={{
+                                backgroundColor: f.ok ? '#f0fdf4' : '#fef2f2',
+                                color: f.ok ? '#166534' : '#991b1b'
+                              }}
+                            >
+                              {f.ok ? '✓' : '✕'} {f.text}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })
                 )}
               </div>
+
+              <div className="bb-bright-card" style={{ padding: 0, overflow: 'hidden', height: '240px' }}>
+                <MapContainer center={defaultCenter} zoom={14} scrollWheelZoom={false} style={{ height: '100%', width: '100%' }}>
+                  <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                  <LocationMarker position={position} setPosition={setPosition} />
+                </MapContainer>
+              </div>
             </div>
           </div>
         )}
+
+        {/* Audit Trail */}
+        <div className="bb-bright-card" style={{ marginTop: '20px' }}>
+          <h3 style={{ margin: '0 0 10px 0', fontSize: '15px', fontWeight: 800 }}>📡 Workflow Audit Log</h3>
+          <div className="bb-terminal-bright" style={{ minHeight: '105px' }}>
+            {auditLogs.length === 0 ? (
+              <span style={{ color: '#94a3b8' }}>[Ready] Donor submits report → Doctor approves/rejects → Needy sees approved suitable donors.</span>
+            ) : (
+              auditLogs.map((log, i) => <div key={i} style={{ marginBottom: '5px' }}>{log}</div>)
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
